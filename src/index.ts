@@ -248,10 +248,10 @@ function createServer(): McpServer {
       title: 'Add a scene',
       description:
         'Append one scene to the screenplay. Provide a Fountain-style slug line (e.g. ' +
-        '"INT. WAREHOUSE - NIGHT"), the prose/action/dialogue you wrote, and optionally the ' +
+        '"INT. WAREHOUSE, NIGHT"), the prose/action/dialogue you wrote, and optionally the ' +
         'director persona guiding the scene. Page count is estimated from length unless you set it.',
       inputSchema: z.object({
-        slug: z.string().describe('Scene heading, e.g. "EXT. CITY STREET - DAWN".'),
+        slug: z.string().describe('Scene heading, e.g. "EXT. CITY STREET, DAWN".'),
         body: z.string().describe('The scene prose: action and dialogue.'),
         director: z.string().optional().describe('Director persona id guiding this scene.'),
         pages: z.number().optional().describe('Override the estimated page length.'),

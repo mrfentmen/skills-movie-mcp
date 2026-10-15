@@ -54,7 +54,7 @@ await client.callTool({
 await client.callTool({
   name: 'add_scene',
   arguments: {
-    slug: 'INT. TEST LAB - NIGHT',
+    slug: 'INT. TEST LAB, NIGHT',
     body:
       'The room hums. A single bulb swings. DR. VOSS stares at the equation on the board, ' +
       'chalk dust on her cuffs. "It works," she whispers. The bulb swings again, slower, as if time itself leaned in to listen.',
