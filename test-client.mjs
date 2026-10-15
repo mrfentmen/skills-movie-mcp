@@ -64,6 +64,25 @@ await client.callTool({
 const st = await client.callTool({ name: 'screenplay_status', arguments: {} });
 show('SCREENPLAY_STATUS', st.content[0].text);
 
+// 5b. validator: a dashed body must be REJECTED, a clean one accepted
+const dashed = await client.callTool({
+  name: 'add_scene',
+  arguments: {
+    slug: 'INT. REJECTED, NIGHT',
+    body: 'She turns — the room goes quiet. The clock stops — nobody moves.',
+  },
+});
+show('VALIDATOR (should be isError:true)', { isError: dashed.isError, text: dashed.content[0].text });
+
+const clean = await client.callTool({
+  name: 'add_scene',
+  arguments: {
+    slug: 'INT. ACCEPTED, NIGHT',
+    body: 'She turns. The room goes quiet. The clock stops. Nobody moves.',
+  },
+});
+show('VALIDATOR (should be accepted)', clean.content[0].text);
+
 const exp = await client.callTool({ name: 'export_script', arguments: {} });
 show('EXPORT_SCRIPT', exp.content[0].text);
 
