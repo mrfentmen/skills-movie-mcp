@@ -1,0 +1,6 @@
+node_modules/
+.cache/
+screenplays/
+dist/
+*.log
+.DS_Store
