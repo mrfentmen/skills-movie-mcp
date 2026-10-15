@@ -10,6 +10,19 @@ import {
   status,
 } from './screenplay.ts';
 
+/**
+ * Enforce the absolute no-dashes rule at the server boundary. Returns a human
+ * message describing the first forbidden dash found in `text`, or null if clean.
+ * Allowed: hyphens inside a compound word (hard-boiled) and the INT./EXT. scene
+ * separator. Forbidden: em dash, en dash, and a hyphen used as a separator.
+ */
+function findDashViolation(text: string): string | null {
+  if (text.includes('—')) return 'an em dash';
+  if (text.includes('–')) return 'an en dash';
+  if (/(?<=\S) - (?=\S)/.test(text)) return 'a hyphen used as a separator';
+  return null;
+}
+
 function createServer(): McpServer {
   const server = new McpServer(
     {
@@ -249,15 +262,32 @@ function createServer(): McpServer {
       description:
         'Append one scene to the screenplay. Provide a Fountain-style slug line (e.g. ' +
         '"INT. WAREHOUSE, NIGHT"), the prose/action/dialogue you wrote, and optionally the ' +
-        'director persona guiding the scene. Page count is estimated from length unless you set it.',
+        'director persona guiding the scene. Page count is estimated from length unless you set it. ' +
+        'Enforces the absolute no-dashes rule: the body is rejected if it contains an em dash, ' +
+        'en dash, or a separator hyphen (compound-word hyphens are fine).',
       inputSchema: z.object({
         slug: z.string().describe('Scene heading, e.g. "EXT. CITY STREET, DAWN".'),
-        body: z.string().describe('The scene prose: action and dialogue.'),
+        body: z.string().describe('The scene prose: action and dialogue. No dashes.'),
         director: z.string().optional().describe('Director persona id guiding this scene.'),
         pages: z.number().optional().describe('Override the estimated page length.'),
       }),
     },
     async (args) => {
+      const violation = findDashViolation(args.body);
+      if (violation) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text:
+                `Rejected: the scene body contains ${violation}. The no-dashes rule is absolute: ` +
+                `rewrite using a comma, period, semicolon, colon, or parentheses. Compound-word ` +
+                `hyphens (hard-boiled) are fine; em dashes, en dashes, and separator hyphens are not.`,
+            },
+          ],
+          isError: true,
+        };
+      }
       const scene = addScene({
         slug: args.slug,
         body: args.body,
